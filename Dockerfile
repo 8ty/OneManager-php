@@ -8,8 +8,18 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && docker-php-ext-install curl mbstring pdo pdo_mysql zip
 
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy composer.json and install dependencies
+COPY composer.json ./
+RUN composer install --no-dev --optimize-autoloader
+
 # Copy application files
-COPY . /var/www/html/
+COPY . .
 
 # Create data directory and set permissions
 RUN mkdir -p /var/www/html/.data && \
